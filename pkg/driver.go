@@ -69,7 +69,8 @@ func (testD *testD) Run(driverName, nodeID, endpoint string) {
 	if testD.driver == nil {
 		glog.Fatalln("Failed to initialize CSI Driver.")
 	}
-  
+        
+	//Add Capability
 	testD.driver.AddControllerServiceCapabilities([]csi.ControllerServiceCapability_RPC_Type{
 		csi.ControllerServiceCapability_RPC_CREATE_DELETE_VOLUME//,
 		//csi.ControllerServiceCapability_RPC_PUBLISH_UNPUBLISH_VOLUME,
