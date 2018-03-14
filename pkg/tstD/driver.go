@@ -65,14 +65,14 @@ func (testD *testD) Run(driverName, nodeID, endpoint string) {
 	///glog.Infof("Driver: %v version: %v", driverName, version)
 
 	// Initialize default library driver
-	///testD.driver = csicommon.NewCSIDriver(driverName, version, nodeID)
-	///if testD.driver == nil {
-	///	glog.Fatalln("Failed to initialize CSI Driver.")
-	///}
+	testD.driver = csicommon.NewCSIDriver(driverName, version, nodeID)
+	if testD.driver == nil {
+		glog.Fatalln("Failed to initialize CSI Driver.")
+	}
 	
 	//Add Capability
-	//testD.driver.AddControllerServiceCapabilities([]csi.ControllerServiceCapability_RPC_Type{csi.ControllerServiceCapability_RPC_CREATE_DELETE_VOLUME})
-	//testD.driver.AddVolumeCapabilityAccessModes([]csi.VolumeCapability_AccessMode_Mode{csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER})
+	testD.driver.AddControllerServiceCapabilities([]csi.ControllerServiceCapability_RPC_Type{csi.ControllerServiceCapability_RPC_CREATE_DELETE_VOLUME})
+	testD.driver.AddVolumeCapabilityAccessModes([]csi.VolumeCapability_AccessMode_Mode{csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER})
 	
 	// Create GRPC servers 
 	testD.ids = NewIdentityServer(testD.driver)
