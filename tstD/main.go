@@ -20,7 +20,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/SKD-SKD/my-test/tree/master/pkg/tstD"
+	"github.com/SKD-SKD/my-test/pkg/tstD"
 )
 
 func init() {
