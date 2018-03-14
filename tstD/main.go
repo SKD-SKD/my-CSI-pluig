@@ -41,6 +41,6 @@ func main() {
 }
 
 func handle() {
-	driver := testD.GetHostPathDriver()
+	driver := testD.GettestDDriver()
 	driver.Run(*driverName, *nodeID, *endpoint)
 }
