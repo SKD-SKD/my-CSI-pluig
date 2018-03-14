@@ -14,7 +14,7 @@
 
 .PHONY: all testD
 
-IMAGE_NAME=quay.io/testDcsi/testD
+IMAGE_NAME=quay.io/testdcsi/testd
 IMAGE_VERSION=v0.2.0
 
 all: testD
