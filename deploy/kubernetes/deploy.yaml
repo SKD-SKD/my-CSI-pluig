@@ -1,356 +1,179 @@
 
 apiVersion: storage.k8s.io/v1
-
 kind: StorageClass
-
 metadata:
-
   name: csi-test-sc
-
 provisioner: csi-test
-
 parameters:
-
   csiProvisionerSecretName: csi-secret
-
   csiProvisionerSecretNamespace: default
-
 reclaimPolicy: Delete
-
 volumeBindingMode: Immediate
-
 ---
-
 apiVersion: v1
-
 kind: ServiceAccount
-
 metadata:
-
   name: csi-test-service-account
-
   namespace: default
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
-
 kind: ClusterRole
-
 metadata:
-
   name: csi-test-cluster-role
-
 rules:
-
 - apiGroups:
-
   - ""
-
   resources:
-
   - persistentvolumes
-
   verbs:
-
   - create
-
   - delete
-
   - get
-
   - list
-
   - watch
-
   - update
-
 - apiGroups:
-
   - ""
-
   resources:
-
   - secrets
-
   verbs:
-
   - get
-
   - list
-
 - apiGroups:
-
   - ""
-
   resources:
-
   - persistentvolumeclaims
-
   verbs:
-
   - get
-
   - list
-
   - watch
-
   - update
-
 - apiGroups:
-
   - ""
-
   resources:
-
   - nodes
-
   verbs:
-
   - get
-
   - list
-
   - watch
-
   - update
-
 - apiGroups:
-
   - storage.k8s.io
-
   resources:
-
   - volumeattachments
-
   verbs:
-
   - get
-
   - list
-
   - watch
-
   - update
-
 - apiGroups:
-
   - storage.k8s.io
-
   resources:
-
   - storageclasses
-
   verbs:
-
   - get
-
   - list
-
   - watch
-
 - apiGroups:
-
   - ""
-
   resources:
-
   - events
-
   verbs:
-
   - list
-
   - watch
-
   - create
-
   - update
-
   - patch
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
-
 kind: ClusterRoleBinding
-
 metadata:
-
   name: csi-test-role-binding
-
 roleRef:
-
   apiGroup: rbac.authorization.k8s.io
-
   kind: ClusterRole
-
   name: csi-cluster-role
-
 subjects:
-
 - kind: ServiceAccount
-
   name: csi-service-account
-
   namespace: default
-
 ---
-
 apiVersion: v1
-
 kind: Pod
-
 metadata:
-
   labels:
-
     app: test-driver
-
   name: csi-test-pod
-
   namespace: default
-
 spec:
-
   serviceAccount: csi-service-account
-
   containers:
-
   - args:
-
     - --v=5
-
     - --provisioner=csi-test
-
     - --csi-address=/csi/csi.sock
-
     image: quay.io/k8scsi/csi-provisioner:v0.2.0
-
     imagePullPolicy: Always
-
     name: external-provisioner
-
     volumeMounts:
-
     - mountPath: /csi
-
       name: socket-dir
-
   - args:
-
     - --v=5
-
     - --csi-address=/csi/csi.sock
-
     env:
-
     - name: KUBE_NODE_NAME
-
       valueFrom:
-
         fieldRef:
-
           apiVersion: v1
-
           fieldPath: spec.nodeName
-
     image: quay.io/k8scsi/driver-registrar:v0.2.0
-
     imagePullPolicy: Always
-
     name: driver-registrar
-
     volumeMounts:
-
     - mountPath: /csi
-
       name: socket-dir
-
   - args:
-
     - --v=5
-
     - --csi-address=$(ADDRESS)
-
     env:
-
     - name: ADDRESS
-
       value: /csi/csi.sock
-
     image: quay.io/k8scsi/csi-attacher:v0.2.0
-
     imagePullPolicy: Always
-
     name: external-attacher
-
     volumeMounts:
-
     - mountPath: /csi
-
       name: socket-dir
-
   - args:
-
     - --v=5
-
     - --endpoint=$(CSI_ENDPOINT)
-
     - --nodeid=$(KUBE_NODE_NAME)
-
     env:
-
     - name: CSI_ENDPOINT
-
       value: unix:///csi/csi.sock
-
     - name: KUBE_NODE_NAME
-
       valueFrom:
-
         fieldRef:
-
           apiVersion: v1
-
           fieldPath: spec.nodeName
-
     image: quay.io/testdcsi/testd:v0.2.0
-
     imagePullPolicy: IfNotPresent
-
     name: test-driver
-
     securityContext:
-
       privileged: true
-
     volumeMounts:
-
     - mountPath: /csi
-
       name: socket-dir
-
     - mountPath: /var/lib/kubelet/pods
-
       mountPropagation: Bidirectional
-
       name: mountpoint-dir
-
   volumes:
-
   - hostPath:
-
       path: /var/lib/kubelet/plugins/csi-test
-
       type: DirectoryOrCreate
-
     name: socket-dir
-
   - hostPath:
-
       path: /var/lib/kubelet/pods
-
       type: DirectoryOrCreate
-
     name: mountpoint-dir
